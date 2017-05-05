@@ -1,0 +1,48 @@
+---
+ - hosts: all
+   become: true
+   tasks:
+     - name: Ensure apt cache is updated.
+       apt: update_cache=yes cache_valid_time=3600
+     - name: Descargar paquetes necesarios para Varnish
+       apt: "name={{ item }} state=installed"
+       with_items:
+       - automake
+       - autotools-dev
+       - libedit-dev
+       - libjemalloc-dev
+       - libncurses-dev
+       - libpcre3-dev
+       - libtool
+       - pkg-config
+       - python-docutils
+       - python-sphinx
+       - graphviz
+       - git
+     - name: Crear carpeta descarga Git
+       file: path=/root/varnish-git state=directory
+     - name: Giteando  
+       git: repo='https://github.com/varnishcache/varnish-cache.git'
+            dest='/root/varnish-git'
+     - name: Ejecutar Autogen
+       command: /root/varnish-git/sh autogen.sh
+     - name: Ejecutar Configure
+       command: sh configure.sh
+     - name: Ejecutar Make
+       command: make
+     - name: Ejecutar Make Check
+       command: make check
+     - name: Running "Autogen" for Varnish-Git
+          command: 'name={{ item }}' "chdir=/root/varnish-git/"
+          with_items:
+            - sh autogen.sh
+        - name: Running "Configure" for Varnish-Git
+          command: "name={{ item }} chdir=/root/varnish-git/"
+          with_items:
+            - sh configure.sh
+            - name: Running "Make" for Varnish-Git
+          command: '"{{ item }}" chdir=/root/varnish-git/'
+          with_items:
+            - make
+        - name: Running "Make Check" for Varnish-Git
+          command: 'make check chdir=/root/varnish-git/'
