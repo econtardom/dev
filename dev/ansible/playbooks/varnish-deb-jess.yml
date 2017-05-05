@@ -24,25 +24,16 @@
      - name: Giteando  
        git: repo='https://github.com/varnishcache/varnish-cache.git'
             dest='/root/varnish-git'
-     - name: Ejecutar Autogen
-       command: /root/varnish-git/sh autogen.sh
-     - name: Ejecutar Configure
-       command: sh configure.sh
-     - name: Ejecutar Make
-       command: make
-     - name: Ejecutar Make Check
-       command: make check
-     - name: Running "Autogen" for Varnish-Git
-          command: 'name={{ item }}' "chdir=/root/varnish-git/"
+     - name: Running "Autogen" and "Configure" for Varnish-Git
+          script: '"{{ item }}" chdir=/root/varnish-git/'
           with_items:
-            - sh autogen.sh
-        - name: Running "Configure" for Varnish-Git
-          command: "name={{ item }} chdir=/root/varnish-git/"
-          with_items:
-            - sh configure.sh
-            - name: Running "Make" for Varnish-Git
-          command: '"{{ item }}" chdir=/root/varnish-git/'
-          with_items:
-            - make
-        - name: Running "Make Check" for Varnish-Git
-          command: 'make check chdir=/root/varnish-git/'
+            - autogen.sh
+            - configure
+      - name: Build Varnish-Git
+        command: >
+            '"{{ item }}"'
+            chdir=/root/varnish-git/
+        with_items:
+        - make
+        - make check
+
