@@ -25,15 +25,13 @@
        git: repo='https://github.com/varnishcache/varnish-cache.git'
             dest='/root/varnish-git'
      - name: Running "Autogen" and "Configure" for Varnish-Git
-          script: '"{{ item }}" chdir=/root/varnish-git/'
-          with_items:
-            - autogen.sh
-            - configure
-      - name: Build Varnish-Git
-        command: >
-            '"{{ item }}"'
-            chdir=/root/varnish-git/
-        with_items:
+       script: "chdir=/root/varnish-git/ {{ item }}"
+       with_items:
+         - autogen.sh
+         - configure
+     - name: Build Varnish-Git
+       command: "chdir=/root/varnish-git/ {{ item }}"'
+       with_items:
         - make
         - make check
 
