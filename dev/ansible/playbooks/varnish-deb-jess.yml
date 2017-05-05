@@ -2,10 +2,14 @@
  - hosts: all
    become: true
    tasks:
+     
      - name: Ensure apt cache is updated.
        apt: update_cache=yes cache_valid_time=3600
+     
      - name: Descargar paquetes necesarios para Varnish
-       apt: "name={{ item }} state=installed"
+       apt:
+		name: '{{ item }}' 
+		state: 'installed"
        with_items:
        - automake
        - autotools-dev
@@ -19,21 +23,40 @@
        - python-sphinx
        - graphviz
        - git
+     
      - name: Crear carpeta descarga Git
-       file: path=/root/varnish-git state=directory
+       file: 
+		path:	/root/varnish-git 
+		state:	directory
+     
      - name: Giteando  
-       git: repo='https://github.com/varnishcache/varnish-cache.git'
-            dest='/root/varnish-git'
-     - name: Running "Autogen" and "Configure" for Varnish-Git
-          script: '"{{ item }}" chdir=/root/varnish-git/'
-          with_items:
-            - autogen.sh
-            - configure
-      - name: Build Varnish-Git
-        command: >
-            '"{{ item }}"'
-            chdir=/root/varnish-git/
-        with_items:
-        - make
-        - make check
+       git: 
+		repo:	'https://github.com/varnishcache/varnish-cache.git'
+        dest:	'/root/varnish-git'
 
+     - name: Running  Configure for Varnish-Git
+          shell: ./configure --prefix=/usr/local/varnish-master 
+          args:
+			chdir: /root/varnish-git/
+
+     - name: Running  autogen.sh for Varnish-Git
+          shell: autogen.sh
+          args:
+			chdir: /root/varnish-git/
+
+
+     - name: Running  make for Varnish-Git
+          shell: make
+          args:
+			chdir: /root/varnish-git/
+
+     - name: Running  make install for Varnish-Git
+          shell: make install
+          args:
+			chdir: /root/varnish-git/
+
+
+     - name: Running  make check for Varnish-Git
+          shell: make check
+          args:
+			chdir: /root/varnish-git/
