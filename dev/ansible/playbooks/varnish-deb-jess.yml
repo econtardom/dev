@@ -30,7 +30,7 @@
          - autogen.sh
          - configure
      - name: Build Varnish-Git
-       command: "chdir=/root/varnish-git/ {{ item }}"'
+       command: "chdir=/root/varnish-git/ {{ item }}"
        with_items:
         - make
         - make check
