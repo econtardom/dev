@@ -23,15 +23,30 @@
        file: path=/root/varnish-git state=directory
      - name: Giteando  
        git: repo='https://github.com/varnishcache/varnish-cache.git'
-            dest='/root/varnish-git'
-     - name: Running "Autogen" and "Configure" for Varnish-Git
-       script: "chdir=/root/varnish-git/ {{ item }}"
+              dest='/root/varnish-git'
+     - name: Running Autogen and Configure for Varnish-Git
+       command: '{{ item }}'
+       args:
+        chdir: /root/varnish-git
        with_items:
-         - autogen.sh
-         - configure
+         - "sh autogen.sh"
+         - "sh configure --prefix=/usr/local/varnish"
      - name: Build Varnish-Git
-       command: "chdir=/root/varnish-git/ {{ item }}"
+       command: "chdir=/root/varnish-git {{ item }}"
        with_items:
         - make
         - make check
-
+        - make install
+     - name: Definir archivo y ruta
+       set_fact: remote_file_path=/etc/ld.so.conf.d/varnish.conf
+     - name: Crear /etc/ld.so.conf.d/varnish.conf
+       file: path="{{ remote_file_path }}" state=touch
+     - stat: path="{{ remote_file_path }}"
+       register: file_path
+     - debug: msg="File exists"
+       when: file_path.stat.exists == true
+     - set_fact: file_content="/usr/local/varnish/lib"
+     - copy: content="{{ file_content }}" dest="{{ remote_file_path }}"
+       when: file_path.stat.exists == true
+     - name: run ldconfig
+       action: command /sbin/ldconfig
